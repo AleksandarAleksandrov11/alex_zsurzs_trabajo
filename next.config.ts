@@ -1,6 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /* ESLint no se ejecuta durante el build.
+     No es dejadez: `next build` lo lanza por defecto, y su resolutor de
+     importaciones depende de un módulo nativo (`unrs-resolver`) que según la
+     versión de pnpm del proveedor puede quedarse sin compilar. Eso tumba un
+     despliegue por un motivo que no tiene nada que ver con el código. El lint
+     sigue siendo obligatorio, pero donde corresponde: `pnpm lint`, que además
+     forma parte de `pnpm auditar`. */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  /* La comprobación de tipos sí se mantiene en el build: un error de tipos es
+     un error de verdad y hasta hoy no ha fallado ninguno. */
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
   /* La tipografía de las imágenes Open Graph se lee del disco en tiempo de
      ejecución, así que hay que incluirla explícitamente en el paquete que
      Vercel despliega. */
