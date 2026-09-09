@@ -8,6 +8,7 @@ import {
   type SeccionLegal,
 } from "@/content/legal";
 import { site } from "@/content/site";
+import { DOMINIO_ACTUAL } from "@/lib/seo";
 
 type Props = {
   titulo: string;
@@ -108,7 +109,7 @@ export function DocumentoLegal({
                       etiqueta="Nombre comercial"
                       valor={datosFiscales.nombreComercial}
                     />
-                    <DatoTitular etiqueta="Dominio" valor={datosFiscales.dominio} />
+                    <DatoTitular etiqueta="Dominio" valor={DOMINIO_ACTUAL} />
                     <DatoTitular etiqueta="Actividad" valor={datosFiscales.actividad} />
                     <DatoTitular
                       etiqueta="Registro"

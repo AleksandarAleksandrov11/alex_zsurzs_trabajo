@@ -30,8 +30,9 @@ export const datosFiscales = {
   /* Estos sí son conocidos */
   actividad:
     "Instalación, mantenimiento y reparación de instalaciones eléctricas, de fontanería, de climatización y de trabajos verticales, así como formación técnica para profesionales del sector.",
-  dominio: site.url.replace("https://", ""),
   nombreComercial: site.nombre,
+  /* El dominio no se escribe aquí: la página legal muestra aquel en el que
+     la web está realmente publicada, que es lo que exige la LSSI-CE. */
 } as const;
 
 /** Proveedores que tratan datos por cuenta del titular. */

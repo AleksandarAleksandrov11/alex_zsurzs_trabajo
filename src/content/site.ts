@@ -11,7 +11,15 @@ export const site = {
   nombre: "ZSolutions",
   nombreCompleto: "ZSolutions · Instalaciones",
   fundador: "Alex Zsurzs",
-  url: "https://zsolutions.es",
+  /**
+   * TODO (Alex): dominio definitivo, cuando se contrate y apunte a Vercel.
+   *
+   * Mientras valga `null`, la web funciona igual en la URL que le dé Vercel:
+   * canonicals, sitemap, JSON-LD y miniaturas sociales se generan solos a
+   * partir del dominio donde esté servida. No hay ninguna dirección escrita
+   * a fuego. Ver `resolverBaseUrl()` en `src/lib/seo.ts`.
+   */
+  dominio: null as DatoPendiente,
   locale: "es_ES",
   lang: "es",
   descripcionCorta:

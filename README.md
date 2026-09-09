@@ -39,10 +39,43 @@ Settings → Environment Variables** para producción.
 
 | Variable | Para qué sirve | Obligatoria |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Dominio público, p. ej. `https://zsolutions.es` | No: se autodetecta (ver §12) |
+| `NEXT_PUBLIC_SITE_URL` | Dominio definitivo. **Déjala vacía mientras no lo tengas** | No |
+| `NEXT_PUBLIC_PERMITIR_INDEXACION` | `true` para que Google indexe la URL provisional | No |
 | `RESEND_API_KEY` | Clave de API de [Resend](https://resend.com/api-keys) | Sí, para que el formulario envíe |
-| `EMAIL_REMITENTE` | Remitente verificado en Resend, p. ej. `ZSolutions <presupuestos@zsolutions.es>` | Sí |
+| `EMAIL_REMITENTE` | Remitente. Sin dominio propio: `ZSolutions <onboarding@resend.dev>` | Sí |
 | `EMAIL_DESTINATARIO` | Dirección de Alex que recibe las solicitudes | Sí |
+
+### Todavía no hay dominio
+
+No hace falta para publicar. **No hay ninguna dirección escrita a fuego en el
+código:** la web se autodescribe con la URL en la que esté servida, así que
+funciona entera en el `*.vercel.app` que te dé Vercel, con las canonicals, el
+sitemap, el JSON-LD y las miniaturas al compartir correctas.
+
+Mientras `NEXT_PUBLIC_SITE_URL` esté vacía, la web se publica en **`noindex`**
+a propósito. Indexar una dirección provisional sale caro: cuando llegue el
+dominio bueno, Google ya tendría una copia compitiendo con él por las mismas
+búsquedas, y hay que deshacerlo a base de redirecciones y reindexación. Se ve
+perfectamente y se puede compartir el enlace; simplemente no entra en Google.
+
+Si prefieres que entre en Google desde ya, asumiendo eso, defínela:
+`NEXT_PUBLIC_PERMITIR_INDEXACION=true`.
+
+**Efecto en Lighthouse:** con la indexación cerrada, la puntuación de SEO baja a
+unos 69 puntos por el `noindex`. No es un fallo: es exactamente lo que se le ha
+pedido a la web. Con el dominio puesto, o forzando la indexación, vuelve a 100.
+
+El día que tengas el dominio: apúntalo a Vercel, define
+`NEXT_PUBLIC_SITE_URL=https://zsolutions.es` en producción y vuelve a
+desplegar. La web pasa a ser indexable sola y todas las URL cambian con ella.
+
+### Probar el formulario hoy, sin dominio
+
+Resend deja enviar desde `onboarding@resend.dev` sin verificar nada, con una
+limitación: solo entrega a la dirección con la que te registraste. Es
+suficiente para probar el envío de punta a punta. La autorespuesta al cliente
+sí fallará mientras tanto; el código lo registra en el log y no invalida la
+solicitud, porque el aviso importante, el tuyo, ya ha salido.
 
 **Sin estas tres variables el formulario no falla en silencio:** valida, avisa
 al usuario con un mensaje claro y le ofrece WhatsApp y teléfono como
@@ -193,6 +226,9 @@ El sistema visual sigue el *Manual Básico de Identidad Visual Corporativa*.
 
 ### Antes de publicar
 
+0. **Definir `NEXT_PUBLIC_SITE_URL`** con el dominio definitivo. Hasta que no
+   lo hagas, la web se publica en `noindex` y Google no la indexará: es
+   deliberado, para no ensuciar el índice con una dirección provisional.
 1. **Rellenar el NAP** en `src/content/site.ts` y los datos fiscales en
    `src/content/legal.ts`. El schema `LocalBusiness` omite a propósito los
    campos vacíos: es mejor un schema incompleto que uno con datos inventados
@@ -249,12 +285,30 @@ pnpm auditar:lighthouse http://localhost:3000 / /servicios/electricidad
 1024, 1440 y 1920 px, que no hay errores de consola ni de hidratación, que cada
 página tiene un solo `h1`, `alt` en todas las imágenes y JSON-LD válido.
 
-Las auditorías con navegador usan Playwright y el Chromium del sistema. Si en tu
-máquina está en otra ruta, exporta `CHROMIUM_PATH`.
+Las auditorías con navegador usan Playwright, Lighthouse y el Chromium del
+sistema. **No van en las dependencias del proyecto a propósito:** son cientos de
+megas que no pintan nada en un build de producción y que además ralentizan cada
+despliegue. Se instalan cuando hacen falta:
+
+```bash
+pnpm auditar:instalar
+```
+
+Si el Chromium de tu máquina está en otra ruta, exporta `CHROMIUM_PATH`.
 
 ---
 
 ## 11. Checklist de lanzamiento
+
+### Para verlo publicado ya, sin dominio
+
+- [ ] Proyecto importado en Vercel con la rama de producción en `main`
+- [ ] `RESEND_API_KEY`, `EMAIL_REMITENTE` y `EMAIL_DESTINATARIO` definidas
+- [ ] Prueba de envío del formulario contra tu propio correo
+- [ ] `NEXT_PUBLIC_SITE_URL` vacía: la web queda en `noindex` a propósito
+      (o `NEXT_PUBLIC_PERMITIR_INDEXACION=true` si quieres que Google la vea ya)
+
+### Antes de abrirla a Google
 
 - [ ] Datos fiscales y NAP rellenos (`site.ts` y `legal.ts`)
 - [ ] Textos legales revisados por un asesor
@@ -293,25 +347,26 @@ pnpm para que Vercel instale exactamente con el mismo lockfile que en local.
 
 ### El sitio se adapta al dominio donde esté servido
 
-Las canonicals, el sitemap, el JSON-LD y las miniaturas Open Graph no están
-fijadas a `zsolutions.es`: se resuelven en tiempo de compilación según el
+No hay ningún dominio escrito a fuego. Las canonicals, el sitemap, el JSON-LD y
+las miniaturas Open Graph se resuelven en tiempo de compilación según el
 entorno (`src/lib/seo.ts`).
 
-- **Producción:** el dominio de producción del proyecto, o el valor de
-  `NEXT_PUBLIC_SITE_URL` si lo defines.
+- **Producción:** `NEXT_PUBLIC_SITE_URL` si está definida; si no, el dominio de
+  producción del proyecto en Vercel.
 - **Previsualizaciones:** la URL de esa previsualización, para que al compartir
   el enlace la miniatura y el título salgan bien.
 - **Local:** `http://localhost:3000`.
 
-Cuando el dominio definitivo esté apuntando, define
-`NEXT_PUBLIC_SITE_URL=https://zsolutions.es` en producción y vuelve a desplegar.
+### Cuando llegue el dominio
 
-### Dominios
-
-- Añadir `zsolutions.es` y `www.zsolutions.es` en Vercel, con `www` redirigido
-  al dominio sin www (o al revés, pero solo uno como principal).
-- Redirigir `contacto.zsolutions.es` con un 301 a `https://zsolutions.es/contacto`.
-  Esto se configura a nivel de dominio en Vercel, no en `vercel.json`.
+1. Añadir `zsolutions.es` y `www.zsolutions.es` en Vercel, con `www` redirigido
+   al dominio sin www (o al revés, pero solo uno como principal).
+2. Definir `NEXT_PUBLIC_SITE_URL=https://zsolutions.es` en producción y volver a
+   desplegar. Eso activa también la indexación.
+3. Redirigir `contacto.zsolutions.es` con un 301 a `https://zsolutions.es/contacto`.
+   Se configura a nivel de dominio en Vercel, no en `vercel.json`.
+4. Verificar el dominio en Resend (SPF y DKIM) y cambiar `EMAIL_REMITENTE` a una
+   dirección propia.
 
 ### Detalles que ya están resueltos
 
@@ -321,6 +376,20 @@ Cuando el dominio definitivo esté apuntando, define
 - `.vercelignore` deja fuera del despliegue las herramientas de auditoría.
 - Analytics y Speed Insights se activan solos en Vercel. En local devuelven 404
   y por eso las auditorías los ignoran.
+
+### Decisiones tomadas para que el build no falle
+
+- **`engines` no se declara.** Vercel rechaza los rangos que no reconoce
+  (`>=20.9.0` entre ellos) con un `Found invalid Node.js Version` y aborta el
+  despliegue. La versión de Node se elige en Settings → General.
+- **`vercel.json` es deliberadamente corto:** framework y poco más. Las claves
+  `regions`, `cleanUrls`, `trailingSlash` y `outputDirectory` sobran en un
+  proyecto Next.js y algunas fallan directamente (`regions` no está permitida
+  en el plan Hobby).
+- **Playwright y Lighthouse no están en las dependencias.** Vercel instala las
+  de desarrollo en cada build, y según la versión de pnpm que use, Playwright
+  intenta descargarse los navegadores en el `postinstall`. Se instalan a mano
+  con `pnpm auditar:instalar` cuando hacen falta.
 
 ### Si el despliegue no aparece
 

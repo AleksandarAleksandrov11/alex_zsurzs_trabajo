@@ -7,17 +7,16 @@ import { site } from "@/content/site";
  * Se resuelve en tiempo de compilación, que es cuando se generan las 47 rutas
  * estáticas, el sitemap y las URL de las imágenes Open Graph.
  *
- * Si esto quedara fijo en `zsolutions.es`, un despliegue en un dominio
- * `*.vercel.app` publicaría canonicals, sitemap y miniaturas sociales
- * apuntando a un dominio que todavía no resuelve: la web se vería, pero
- * las previsualizaciones al compartir el enlace saldrían rotas y Google
- * indexaría direcciones equivocadas.
+ * No hay ningún dominio escrito a fuego: la web se autodescribe con la
+ * dirección en la que está servida. Así funciona correctamente hoy en la URL
+ * que da Vercel y seguirá funcionando el día que se apunte el dominio
+ * definitivo, sin tocar código.
  *
  * Orden de prioridad:
- *  1. `NEXT_PUBLIC_SITE_URL`, el dominio definitivo cuando ya está apuntado.
+ *  1. `NEXT_PUBLIC_SITE_URL`, el dominio definitivo cuando ya esté apuntado.
  *  2. El dominio de producción del proyecto en Vercel.
  *  3. La URL única de la previsualización, para que cada preview se autodescriba.
- *  4. `localhost` en desarrollo y, como último recurso, el dominio del proyecto.
+ *  4. `localhost` en desarrollo.
  */
 function resolverBaseUrl(): string {
   const limpiar = (valor: string) =>
@@ -31,15 +30,40 @@ function resolverBaseUrl(): string {
 
   if (process.env.VERCEL_URL) return limpiar(process.env.VERCEL_URL);
 
-  if (process.env.NODE_ENV !== "production") return "http://localhost:3000";
-
-  return site.url;
+  return "http://localhost:3000";
 }
 
 export const BASE_URL = resolverBaseUrl();
 
-/** El dominio al que apunta la marca, con independencia de dónde esté servida. */
-export const URL_CANONICA_MARCA = site.url;
+/** El dominio en el que está servida la web, sin protocolo. */
+export const DOMINIO_ACTUAL = BASE_URL.replace(/^https?:\/\//, "");
+
+/**
+ * Si la web se abre o no a los buscadores.
+ *
+ * Por defecto solo se indexa cuando está en su dominio definitivo. Indexar una
+ * dirección provisional de Vercel tiene un coste real: cuando llegue el
+ * dominio bueno, Google ya tendrá una copia compitiendo con él por las mismas
+ * búsquedas, y hay que deshacerlo a base de redirecciones y reindexación.
+ *
+ * Se activa de dos formas:
+ *  · Definiendo `NEXT_PUBLIC_SITE_URL`, que es lo que harás al apuntar el
+ *    dominio. Es el camino recomendado.
+ *  · Forzándolo con `NEXT_PUBLIC_PERMITIR_INDEXACION=true`, si prefieres que
+ *    la dirección provisional entre en Google desde ya, asumiendo lo anterior.
+ *
+ * Las previsualizaciones nunca se indexan, se ponga lo que se ponga.
+ *
+ * Nota: con la indexación cerrada, Lighthouse baja la puntuación de SEO a
+ * unos 69 puntos por el `noindex`. No es un fallo de la web: es exactamente
+ * lo que se le ha pedido. Con el dominio puesto vuelve a 100.
+ */
+export const ES_INDEXABLE =
+  (Boolean(process.env.NEXT_PUBLIC_SITE_URL) ||
+    process.env.NEXT_PUBLIC_PERMITIR_INDEXACION === "true") &&
+  process.env.VERCEL_ENV !== "preview";
+
+
 
 type Args = {
   /** Sin el sufijo de marca: se añade solo cuando cabe. */
@@ -71,11 +95,22 @@ export function crearMetadata({
   const url = `${BASE_URL}${path === "/" ? "" : path}`;
   const imagen = urlOg(ogTitulo ?? title, ogSubtitulo);
 
+  /* Cuidado: en el API de metadatos de Next, una página que declara la clave
+     `robots` sobrescribe la del layout, aunque su valor sea `undefined`. Por
+     eso aquí se resuelve siempre de forma explícita en lugar de delegar. */
+  const indexable = ES_INDEXABLE && !noIndex;
+
   return {
     title,
     description,
     alternates: { canonical: url },
-    robots: noIndex ? { index: false, follow: true } : undefined,
+    robots: indexable
+      ? {
+          index: true,
+          follow: true,
+          googleBot: { index: true, follow: true, "max-image-preview": "large" },
+        }
+      : { index: false, follow: true },
     openGraph: {
       type: "website",
       locale: site.locale,

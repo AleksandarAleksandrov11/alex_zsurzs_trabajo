@@ -9,7 +9,7 @@ import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { schemaNegocioLocal, schemaPersona, schemaWebSite } from "@/lib/schema";
-import { BASE_URL } from "@/lib/seo";
+import { BASE_URL, ES_INDEXABLE } from "@/lib/seo";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -33,10 +33,17 @@ export const metadata: Metadata = {
   creator: site.fundador,
   publisher: site.nombre,
   formatDetection: { telephone: true, address: false, email: false },
+  /* Mientras la web no esté en su dominio definitivo se publica en `noindex`,
+     para no dejar indexada una dirección provisional que después competiría
+     con el dominio bueno. Se activa sola al definir `NEXT_PUBLIC_SITE_URL`. */
   robots: {
-    index: true,
+    index: ES_INDEXABLE,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    googleBot: {
+      index: ES_INDEXABLE,
+      follow: true,
+      "max-image-preview": "large",
+    },
   },
   /* TODO (Alex): pegar aquí el código de verificación de Google Search Console.
      verification: { google: "…" }, */
