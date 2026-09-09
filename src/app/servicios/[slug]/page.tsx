@@ -25,6 +25,11 @@ import { hrefWhatsApp, site } from "@/content/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
+/* Los slugs de servicio son un conjunto cerrado y conocido: cualquier otro
+   debe dar 404 directamente, sin pasar por una función en servidor. Además de
+   ser lo correcto, evita que direcciones inventadas generen páginas vacías. */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return servicios.map((servicio) => ({ slug: servicio.slug }));
 }

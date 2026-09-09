@@ -16,7 +16,8 @@
     "auditar:formulario": "node scripts/probar-formulario.mjs",
     "auditar:lighthouse": "node scripts/lighthouse.mjs",
     "auditar": "pnpm typecheck && pnpm lint && pnpm auditar:contenido",
-    "auditar:instalar": "pnpm add -D playwright lighthouse chrome-launcher"
+    "auditar:instalar": "pnpm add -D playwright lighthouse chrome-launcher",
+    "fuente:og": "node scripts/generar-fuente-og.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

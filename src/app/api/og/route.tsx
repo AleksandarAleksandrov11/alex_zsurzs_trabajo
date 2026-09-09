@@ -1,11 +1,15 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 import { site } from "@/content/site";
+import { RIGHTEOUS_BASE64 } from "./righteous";
 
 export const runtime = "nodejs";
-export const revalidate = 86400;
+
+/* Sin `revalidate`: es una ruta dinámica que lee la query, así que declarar
+   regeneración obliga a Vercel a crearle una configuración de ISR que no le
+   corresponde. La caché se controla con la cabecera de la respuesta, que
+   además es lo que lee el CDN. */
+export const dynamic = "force-dynamic";
 
 const AZUL = "#2F4AA0";
 const AZUL_PROFUNDO = "#23366F";
@@ -13,26 +17,28 @@ const NARANJA = "#FF7A1A";
 const FONDO = "#0F0F10";
 
 /**
- * Righteous se lee del propio repositorio, no de Google Fonts.
+ * Righteous va incrustada en el propio módulo, en base64.
  *
- * Depender de una descarga externa en tiempo de ejecución significaba que
- * cualquier corte de red dejaba las miniaturas sociales con la tipografía por
- * defecto, y añadía latencia en cada arranque en frío. El archivo va incluido
- * en el paquete mediante `outputFileTracingIncludes` en `next.config.ts`.
+ * Antes se leía del disco, lo que obligaba a declararla en
+ * `outputFileTracingIncludes`. El build terminaba bien, pero Vercel fallaba
+ * justo después, al ensamblar la función a partir de las trazas. Incrustada
+ * no hay ni sistema de archivos ni trazas de por medio.
  *
- * Righteous se distribuye bajo licencia SIL Open Font License 1.1.
+ * Se decodifica una sola vez por instancia.
  */
-let cache: Buffer | null = null;
+let cache: ArrayBuffer | null = null;
 
-async function cargarRighteous(): Promise<Buffer | null> {
+function cargarRighteous(): ArrayBuffer | null {
   if (cache) return cache;
   try {
-    cache = await readFile(
-      path.join(process.cwd(), "src/app/api/og/Righteous-Regular.ttf"),
-    );
+    const binario = atob(RIGHTEOUS_BASE64);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+    cache = bytes.buffer;
     return cache;
   } catch (error) {
-    console.error("[og] No se ha podido leer la tipografía", error);
+    /* Sin tipografía de marca la imagen se genera igual, con la de sistema. */
+    console.error("[og] No se ha podido decodificar la tipografía", error);
     return null;
   }
 }
@@ -42,7 +48,7 @@ export async function GET(request: NextRequest) {
   const titulo = (searchParams.get("t") ?? site.nombre).slice(0, 90);
   const subtitulo = (searchParams.get("s") ?? site.descripcionCorta).slice(0, 140);
 
-  const righteous = await cargarRighteous();
+  const righteous = cargarRighteous();
 
   return new ImageResponse(
     (
@@ -136,14 +142,14 @@ export async function GET(request: NextRequest) {
     {
       width: 1200,
       height: 630,
+      /* Un año en el CDN: la imagen solo depende de la query, que cambia con
+         el título. En el navegador no se cachea, para poder invalidarla. */
+      headers: {
+        "Cache-Control": "public, max-age=0, s-maxage=31536000, immutable",
+      },
       fonts: righteous
         ? [
-            {
-              name: "Righteous",
-              data: righteous as unknown as ArrayBuffer,
-              style: "normal",
-              weight: 400,
-            },
+            { name: "Righteous", data: righteous, style: "normal", weight: 400 },
           ]
         : [],
     },

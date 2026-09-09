@@ -18,13 +18,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
 
-  /* La tipografía de las imágenes Open Graph se lee del disco en tiempo de
-     ejecución, así que hay que incluirla explícitamente en el paquete que
-     Vercel despliega. */
-  outputFileTracingIncludes: {
-    "/api/og": ["./src/app/api/og/Righteous-Regular.ttf"],
-  },
-
   images: {
     /* AVIF primero: en las fotos de obra ahorra en torno a un 40 % frente a
        JPEG con la misma calidad percibida. WebP queda de reserva. */
