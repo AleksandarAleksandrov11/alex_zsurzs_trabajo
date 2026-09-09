@@ -1,0 +1,52 @@
+{
+  "name": "zsolutions-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "fotos": "node scripts/procesar-fotos.mjs",
+    "iconos": "node scripts/generar-iconos.mjs",
+    "auditar:contenido": "node --experimental-strip-types scripts/auditar-contenido.mjs",
+    "auditar:web": "node scripts/auditar-web.mjs",
+    "auditar:teclado": "node scripts/probar-teclado.mjs",
+    "auditar:formulario": "node scripts/probar-formulario.mjs",
+    "auditar:lighthouse": "node scripts/lighthouse.mjs",
+    "auditar": "pnpm typecheck && pnpm lint && pnpm auditar:contenido"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "lucide-react": "^1.43.0",
+    "motion": "^13.2.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "resend": "^6.26.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "chrome-launcher": "^1.2.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "lighthouse": "^13.4.1",
+    "playwright": "^1.63.0",
+    "sharp": "^0.35.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}
