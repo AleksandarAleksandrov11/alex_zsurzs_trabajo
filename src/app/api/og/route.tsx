@@ -3,13 +3,18 @@ import type { NextRequest } from "next/server";
 import { site } from "@/content/site";
 import { RIGHTEOUS_BASE64 } from "./righteous";
 
-export const runtime = "nodejs";
-
-/* Sin `revalidate`: es una ruta dinámica que lee la query, así que declarar
-   regeneración obliga a Vercel a crearle una configuración de ISR que no le
-   corresponde. La caché se controla con la cabecera de la respuesta, que
-   además es lo que lee el CDN. */
-export const dynamic = "force-dynamic";
+/**
+ * Runtime edge, no Node.
+ *
+ * `next/og` arrastra binarios WebAssembly (Satori y resvg). En el runtime de
+ * Node hay que trazarlos y copiarlos dentro de la función, que es justo la
+ * fase en la que fallaba el despliegue. En edge van integrados en el propio
+ * runtime: es además la configuración para la que está pensado `next/og`.
+ *
+ * Sin `revalidate`: es una ruta dinámica que depende de la query. La caché se
+ * controla con la cabecera de la respuesta, que es lo que lee el CDN.
+ */
+export const runtime = "edge";
 
 const AZUL = "#2F4AA0";
 const AZUL_PROFUNDO = "#23366F";
