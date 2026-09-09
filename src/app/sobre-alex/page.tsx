@@ -20,8 +20,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "De peón de obra en 2012 a instalador certificado con REBT, RITE, F-Gas e IRATA Nivel 3. Trayectoria, certificaciones y forma de trabajar.",
   path: "/sobre-alex",
-  ogTitulo: "Alex Zsurzs",
-  ogSubtitulo: "Conozco el oficio desde abajo. Mi misión es profesionalizar el sector.",
 });
 
 export default function SobreAlexPage() {

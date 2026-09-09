@@ -19,7 +19,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Electricidad, fontanería, climatización, aerotermia, trabajos verticales y lampistería en Barcelona y Cataluña, con las habilitaciones en regla.",
   path: "/servicios",
-  ogTitulo: "Seis oficios, un solo responsable",
 });
 
 export default function ServiciosPage() {

@@ -15,7 +15,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Galería de instalaciones ejecutadas en Barcelona y Cataluña, filtrable por servicio y por zona. Cada trabajo con su reto y su solución.",
   path: "/proyectos",
-  ogTitulo: "Obra real, no catálogo",
 });
 
 export default function ProyectosPage() {

@@ -21,8 +21,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Formación práctica para instaladores que quieren elevar su nivel: criterio técnico, documentación, trato con cliente y herramientas nacidas en obra.",
   path: "/formacion",
-  ogTitulo: "Formación para instaladores",
-  ogSubtitulo: "Lo que se aprende en obra, explicado por alguien que sigue en obra.",
 });
 
 export default function FormacionPage() {

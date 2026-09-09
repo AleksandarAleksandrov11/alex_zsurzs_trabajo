@@ -12,7 +12,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Datos identificativos del titular, condiciones de uso, propiedad intelectual y responsabilidad del sitio web de ZSolutions.",
   path: "/aviso-legal",
-  ogTitulo: "Aviso legal",
 });
 
 export default function AvisoLegalPage() {

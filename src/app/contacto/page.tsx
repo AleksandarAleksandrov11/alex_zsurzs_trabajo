@@ -23,8 +23,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Cuéntame qué necesitas en cinco pasos y respondo en menos de 24 horas con una primera valoración. Sin coste y sin compromiso.",
   path: "/contacto",
-  ogTitulo: "Solicitar presupuesto",
-  ogSubtitulo: "Respuesta en menos de 24 horas. Sin coste y sin compromiso.",
 });
 
 export default function ContactoPage() {

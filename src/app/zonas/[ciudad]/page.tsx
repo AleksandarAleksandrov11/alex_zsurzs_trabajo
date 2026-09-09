@@ -39,8 +39,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: zona.titleSeo,
     description: zona.descriptionSeo,
     path: `/zonas/${zona.slug}`,
-    ogTitulo: zona.h1,
-    ogSubtitulo: zona.claim,
   });
 }
 

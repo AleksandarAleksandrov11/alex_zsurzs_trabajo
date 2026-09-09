@@ -43,8 +43,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: servicio.titleSeo,
     description: servicio.descriptionSeo,
     path: `/servicios/${servicio.slug}`,
-    ogTitulo: servicio.h1,
-    ogSubtitulo: servicio.claim,
   });
 }
 

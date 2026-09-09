@@ -13,7 +13,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Qué se almacena en tu dispositivo al visitar ZSolutions, con qué finalidad, durante cuánto tiempo y cómo cambiar tu decisión cuando quieras.",
   path: "/politica-de-cookies",
-  ogTitulo: "Política de cookies",
 });
 
 export default function PoliticaCookiesPage() {

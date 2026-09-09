@@ -370,10 +370,17 @@ entorno (`src/lib/seo.ts`).
 
 ### Detalles que ya están resueltos
 
-- La tipografía de las imágenes Open Graph se lee del repositorio, no de Google
-  Fonts: `/api/og` no depende de ninguna descarga externa en tiempo de ejecución.
-  El archivo se incluye en el paquete mediante `outputFileTracingIncludes`.
-- `.vercelignore` deja fuera del despliegue las herramientas de auditoría.
+- **La miniatura para redes es una imagen estática**, `public/og.png`. La ruta
+  `/api/og` que la componía con `next/og` se ha retirado: ese paquete arrastra
+  binarios WebAssembly que hay que empaquetar dentro de una función, y las
+  funciones edge del plan Hobby tienen un límite de 1 MB que suele superar.
+  El fichero es exactamente el diseño que generaba aquella ruta, así que no se
+  pierde nada de imagen; lo único que se pierde es tener una miniatura distinta
+  por página. Está anotado como pendiente en `src/lib/seo.ts` para recuperarlo
+  cuando el despliegue esté asentado.
+- **La web no necesita ninguna función en servidor salvo la del formulario.**
+  Los slugs de servicio y de zona son un conjunto cerrado (`dynamicParams =
+  false`), así que todo lo demás es HTML estático servido desde el CDN.
 - Analytics y Speed Insights se activan solos en Vercel. En local devuelven 404
   y por eso las auditorías los ignoran.
 

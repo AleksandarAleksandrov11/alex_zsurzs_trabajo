@@ -12,7 +12,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Cómo se tratan tus datos personales en ZSolutions: finalidad, base legítima, plazos de conservación, destinatarios y ejercicio de derechos.",
   path: "/politica-de-privacidad",
-  ogTitulo: "Política de privacidad",
 });
 
 export default function PoliticaPrivacidadPage() {

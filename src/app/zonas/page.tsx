@@ -9,7 +9,7 @@ import { CTASection } from "@/components/sections/CTASection";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { schemaMigas } from "@/lib/schema";
 import { crearMetadata } from "@/lib/seo";
-import { zonas, zonasPorComarca } from "@/content/zonas";
+import { zonasPorComarca } from "@/content/zonas";
 
 const migas = [{ label: "Zonas", href: "/zonas" }];
 
@@ -18,8 +18,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Instalaciones en Barcelona, área metropolitana, Vallès, Baix Llobregat, Maresme, Garraf y resto de Cataluña. Cada zona con su página y su contexto real.",
   path: "/zonas",
-  ogTitulo: "Dónde trabajo",
-  ogSubtitulo: `${zonas.length} zonas con contenido propio, de Barcelona a Girona.`,
 });
 
 export default function ZonasPage() {

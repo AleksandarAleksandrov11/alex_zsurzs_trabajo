@@ -18,9 +18,6 @@ export const metadata: Metadata = crearMetadata({
   description:
     "Instalador certificado en Barcelona: electricidad, fontanería, climatización, aerotermia y trabajos verticales. Presupuesto en menos de 24 horas.",
   path: "/",
-  ogTitulo: "Instalaciones certificadas en Barcelona",
-  ogSubtitulo:
-    "Electricidad, fontanería, climatización, aerotermia y trabajos verticales.",
 });
 
 export default function Home() {

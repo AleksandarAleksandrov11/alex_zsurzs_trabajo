@@ -71,29 +71,35 @@ type Args = {
   description: string;
   /** Ruta absoluta del sitio, empezando por "/". */
   path: string;
-  /** Título grande de la imagen OG. Por defecto, el `title`. */
-  ogTitulo?: string;
-  ogSubtitulo?: string;
   /** Excluir de los índices (páginas técnicas). */
   noIndex?: boolean;
 };
 
-export function urlOg(titulo: string, subtitulo?: string): string {
-  const params = new URLSearchParams({ t: titulo });
-  if (subtitulo) params.set("s", subtitulo);
-  return `${BASE_URL}/api/og?${params.toString()}`;
+/**
+ * Miniatura para redes sociales.
+ *
+ * Es una imagen estática de marca, no generada al vuelo. La ruta `/api/og`
+ * que la componía con `next/og` se ha retirado: ese paquete arrastra binarios
+ * WebAssembly que hay que empaquetar dentro de la función, y era lo único que
+ * quedaba en la fase de despliegue en la que Vercel fallaba. El fichero de
+ * `public/og.png` es exactamente el diseño que generaba aquella ruta.
+ *
+ * TODO: recuperar la miniatura por página cuando el despliegue esté asentado.
+ * Hoy todas las páginas comparten la misma, que es lo que hace la mayoría de
+ * sitios y no penaliza nada.
+ */
+export function urlOg(): string {
+  return `${BASE_URL}/og.png`;
 }
 
 export function crearMetadata({
   title,
   description,
   path,
-  ogTitulo,
-  ogSubtitulo,
   noIndex = false,
 }: Args): Metadata {
   const url = `${BASE_URL}${path === "/" ? "" : path}`;
-  const imagen = urlOg(ogTitulo ?? title, ogSubtitulo);
+  const imagen = urlOg();
 
   /* Cuidado: en el API de metadatos de Next, una página que declara la clave
      `robots` sobrescribe la del layout, aunque su valor sea `undefined`. Por
