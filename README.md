@@ -393,14 +393,30 @@ entorno (`src/lib/seo.ts`).
 
 ### Si el despliegue no aparece
 
-Por orden de probabilidad:
+Lo primero es descartar el código, y para eso está el workflow
+`.github/workflows/build.yml`: reproduce en GitHub Actions el mismo build que
+ejecuta Vercel, con pnpm 9, Node 22 y las mismas variables. **Si esa
+comprobación sale en verde y Vercel sigue fallando, el problema no está en el
+código sino en la configuración del proyecto.** Se ve en la pestaña *Actions*
+del repositorio.
 
-1. La rama desplegada no es la de producción. Comprobar **Settings → Git →
-   Production Branch**.
-2. El *Root Directory* no es la raíz del repositorio.
-3. El build ha fallado. En **Deployments**, abrir el último y leer el log; el
-   error concreto sale ahí.
-4. El proyecto no está conectado a este repositorio en GitHub.
+Causas del lado de Vercel, por orden de probabilidad:
+
+1. **La rama desplegada no es la de producción.** Settings → Git → Production
+   Branch debe ser `main`.
+2. **El *Root Directory* no es la raíz del repositorio.** Settings → General →
+   Root Directory debe estar vacío o ser `./`.
+3. **Hay una configuración antigua en el panel** que pisa la del repositorio.
+   Settings → General → Build & Development Settings: si Install Command o
+   Build Command están sobrescritos con algo raro, quitar el override.
+4. **La versión de Node.** Settings → General → Node.js Version: 22.x.
+5. **El proyecto no está conectado a este repositorio.**
+
+### Cómo leer el error exacto
+
+En Vercel, pestaña **Deployments** → abrir el último → **Building**. El error
+aparece en rojo al final del registro. Es el dato que hace falta para
+arreglarlo de raíz: sin él solo se puede ir por descarte.
 
 Para descartar que el problema sea del código, este build se reproduce en
 limpio con:

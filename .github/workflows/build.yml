@@ -1,0 +1,54 @@
+# Reproduce en GitHub el mismo build que ejecuta Vercel.
+#
+# Sirve para tener una prueba visible y compartida: si esto sale en verde y
+# Vercel sigue fallando, el problema no está en el código sino en la
+# configuración del proyecto en Vercel.
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Instalar, comprobar y compilar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Comprobar tipos
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Auditar el contenido
+        run: pnpm auditar:contenido
+
+      - name: Compilar como en Vercel
+        run: pnpm build
+        env:
+          CI: "1"
+          VERCEL: "1"
+          VERCEL_ENV: production
+          VERCEL_PROJECT_PRODUCTION_URL: zsolutions-web.vercel.app
