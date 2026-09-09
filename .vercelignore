@@ -1,0 +1,6 @@
+# Herramientas de auditoría: no hacen falta para servir la web
+scripts/
+capturas/
+
+# Documentación y ejemplos
+.env.example

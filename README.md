@@ -39,6 +39,7 @@ Settings → Environment Variables** para producción.
 
 | Variable | Para qué sirve | Obligatoria |
 |---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Dominio público, p. ej. `https://zsolutions.es` | No: se autodetecta (ver §12) |
 | `RESEND_API_KEY` | Clave de API de [Resend](https://resend.com/api-keys) | Sí, para que el formulario envíe |
 | `EMAIL_REMITENTE` | Remitente verificado en Resend, p. ej. `ZSolutions <presupuestos@zsolutions.es>` | Sí |
 | `EMAIL_DESTINATARIO` | Dirección de Alex que recibe las solicitudes | Sí |
@@ -271,9 +272,71 @@ máquina está en otra ruta, exporta `CHROMIUM_PATH`.
 
 ---
 
-## 12. Despliegue
+## 12. Despliegue en Vercel
 
-Proyecto listo para Vercel sin configuración adicional más allá de las tres
-variables de entorno. Importar el repositorio, definir las variables y
-desplegar. Analytics y Speed Insights se activan solos en el dominio de Vercel
-(en local devuelven 404, y por eso las auditorías los ignoran).
+El repositorio trae `vercel.json` con el framework, los comandos de instalación
+y build y las redirecciones permanentes. `packageManager` fija la versión de
+pnpm para que Vercel instale exactamente con el mismo lockfile que en local.
+
+### Puesta en marcha, paso a paso
+
+1. En [vercel.com/new](https://vercel.com/new), importar el repositorio
+   `AleksandarAleksandrov11/alex_zsurzs_trabajo`.
+2. **Root Directory: `./`** (la raíz del repositorio). Es el error más habitual:
+   si apunta a una subcarpeta, Vercel no encuentra el proyecto y no despliega
+   nada.
+3. **Production Branch: `main`.** Vercel solo publica en el dominio principal lo
+   que hay en la rama de producción; el resto de ramas genera
+   previsualizaciones con su propia URL.
+4. Framework: Next.js (se detecta solo gracias a `vercel.json`).
+5. Añadir las variables de entorno de §2 y desplegar.
+
+### El sitio se adapta al dominio donde esté servido
+
+Las canonicals, el sitemap, el JSON-LD y las miniaturas Open Graph no están
+fijadas a `zsolutions.es`: se resuelven en tiempo de compilación según el
+entorno (`src/lib/seo.ts`).
+
+- **Producción:** el dominio de producción del proyecto, o el valor de
+  `NEXT_PUBLIC_SITE_URL` si lo defines.
+- **Previsualizaciones:** la URL de esa previsualización, para que al compartir
+  el enlace la miniatura y el título salgan bien.
+- **Local:** `http://localhost:3000`.
+
+Cuando el dominio definitivo esté apuntando, define
+`NEXT_PUBLIC_SITE_URL=https://zsolutions.es` en producción y vuelve a desplegar.
+
+### Dominios
+
+- Añadir `zsolutions.es` y `www.zsolutions.es` en Vercel, con `www` redirigido
+  al dominio sin www (o al revés, pero solo uno como principal).
+- Redirigir `contacto.zsolutions.es` con un 301 a `https://zsolutions.es/contacto`.
+  Esto se configura a nivel de dominio en Vercel, no en `vercel.json`.
+
+### Detalles que ya están resueltos
+
+- La tipografía de las imágenes Open Graph se lee del repositorio, no de Google
+  Fonts: `/api/og` no depende de ninguna descarga externa en tiempo de ejecución.
+  El archivo se incluye en el paquete mediante `outputFileTracingIncludes`.
+- `.vercelignore` deja fuera del despliegue las herramientas de auditoría.
+- Analytics y Speed Insights se activan solos en Vercel. En local devuelven 404
+  y por eso las auditorías los ignoran.
+
+### Si el despliegue no aparece
+
+Por orden de probabilidad:
+
+1. La rama desplegada no es la de producción. Comprobar **Settings → Git →
+   Production Branch**.
+2. El *Root Directory* no es la raíz del repositorio.
+3. El build ha fallado. En **Deployments**, abrir el último y leer el log; el
+   error concreto sale ahí.
+4. El proyecto no está conectado a este repositorio en GitHub.
+
+Para descartar que el problema sea del código, este build se reproduce en
+limpio con:
+
+```bash
+git clone <repo> comprobacion && cd comprobacion
+pnpm install --frozen-lockfile && pnpm build
+```

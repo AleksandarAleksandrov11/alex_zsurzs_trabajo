@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /* La tipografía de las imágenes Open Graph se lee del disco en tiempo de
+     ejecución, así que hay que incluirla explícitamente en el paquete que
+     Vercel despliega. */
+  outputFileTracingIncludes: {
+    "/api/og": ["./src/app/api/og/Righteous-Regular.ttf"],
+  },
+
   images: {
     /* AVIF primero: en las fotos de obra ahorra en torno a un 40 % frente a
        JPEG con la misma calidad percibida. WebP queda de reserva. */
@@ -10,6 +17,36 @@ const nextConfig: NextConfig = {
     deviceSizes: [390, 640, 828, 1080, 1200, 1600, 1920],
     imageSizes: [96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 365,
+  },
+
+  /* Redirecciones permanentes.
+     Van aquí y no en `vercel.json` para que funcionen igual en local y en
+     producción, y para que las auditorías puedan comprobarlas. */
+  async redirects() {
+    return [
+      { source: "/presupuesto", destination: "/contacto", permanent: true },
+      { source: "/sobre-mi", destination: "/sobre-alex", permanent: true },
+      {
+        source: "/servicios/lampista",
+        destination: "/servicios/lampisteria",
+        permanent: true,
+      },
+      {
+        source: "/servicios/aire-acondicionado",
+        destination: "/servicios/climatizacion",
+        permanent: true,
+      },
+      {
+        source: "/servicios/trabajos-en-altura",
+        destination: "/servicios/trabajos-verticales",
+        permanent: true,
+      },
+      {
+        source: "/zonas/hospitalet",
+        destination: "/zonas/hospitalet-de-llobregat",
+        permanent: true,
+      },
+    ];
   },
 
   /* Cabeceras de seguridad. La política de permisos desactiva lo que esta web

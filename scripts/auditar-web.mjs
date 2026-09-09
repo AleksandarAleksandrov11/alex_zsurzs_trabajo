@@ -163,6 +163,31 @@ console.log("\n=== ESTRUCTURA Y ACCESIBILIDAD ===");
   await ctx.close();
 }
 
+/* ---- 4 · Redirecciones permanentes ---- */
+console.log("\n=== REDIRECCIONES ===");
+{
+  const esperadas = [
+    ["/presupuesto", "/contacto"],
+    ["/sobre-mi", "/sobre-alex"],
+    ["/servicios/lampista", "/servicios/lampisteria"],
+    ["/servicios/aire-acondicionado", "/servicios/climatizacion"],
+    ["/servicios/trabajos-en-altura", "/servicios/trabajos-verticales"],
+    ["/zonas/hospitalet", "/zonas/hospitalet-de-llobregat"],
+  ];
+
+  for (const [origen, destino] of esperadas) {
+    const res = await fetch(BASE + origen, { redirect: "manual" });
+    const destinoReal = res.headers.get("location") ?? "";
+    const ok = res.status === 308 && destinoReal.endsWith(destino);
+    if (!ok) {
+      console.log(`✗ ${origen} → ${res.status} ${destinoReal}`);
+      fallos++;
+    } else {
+      console.log(`✓ ${origen} → ${destino} (308)`);
+    }
+  }
+}
+
 await navegador.close();
 console.log(fallos === 0 ? "\n✓ AUDITORÍA WEB SUPERADA\n" : `\n✗ ${fallos} incidencias\n`);
 process.exit(fallos === 0 ? 0 : 1);

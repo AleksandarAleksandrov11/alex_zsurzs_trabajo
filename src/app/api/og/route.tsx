@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 import { site } from "@/content/site";
@@ -10,21 +12,27 @@ const AZUL_PROFUNDO = "#23366F";
 const NARANJA = "#FF7A1A";
 const FONDO = "#0F0F10";
 
-/** Righteous desde Google Fonts. Si falla, se usa la tipografía por defecto. */
-async function cargarRighteous(): Promise<ArrayBuffer | null> {
+/**
+ * Righteous se lee del propio repositorio, no de Google Fonts.
+ *
+ * Depender de una descarga externa en tiempo de ejecución significaba que
+ * cualquier corte de red dejaba las miniaturas sociales con la tipografía por
+ * defecto, y añadía latencia en cada arranque en frío. El archivo va incluido
+ * en el paquete mediante `outputFileTracingIncludes` en `next.config.ts`.
+ *
+ * Righteous se distribuye bajo licencia SIL Open Font License 1.1.
+ */
+let cache: Buffer | null = null;
+
+async function cargarRighteous(): Promise<Buffer | null> {
+  if (cache) return cache;
   try {
-    const css = await fetch(
-      "https://fonts.googleapis.com/css2?family=Righteous&display=swap",
-      { headers: { "User-Agent": "Mozilla/5.0" } },
-    ).then((r) => r.text());
-
-    const url = css.match(/src:\s*url\((https:[^)]+)\)/)?.[1];
-    if (!url) return null;
-
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    return await res.arrayBuffer();
-  } catch {
+    cache = await readFile(
+      path.join(process.cwd(), "src/app/api/og/Righteous-Regular.ttf"),
+    );
+    return cache;
+  } catch (error) {
+    console.error("[og] No se ha podido leer la tipografía", error);
     return null;
   }
 }
@@ -129,7 +137,14 @@ export async function GET(request: NextRequest) {
       width: 1200,
       height: 630,
       fonts: righteous
-        ? [{ name: "Righteous", data: righteous, style: "normal", weight: 400 }]
+        ? [
+            {
+              name: "Righteous",
+              data: righteous as unknown as ArrayBuffer,
+              style: "normal",
+              weight: 400,
+            },
+          ]
         : [],
     },
   );
