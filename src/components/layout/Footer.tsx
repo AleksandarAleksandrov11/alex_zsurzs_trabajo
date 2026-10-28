@@ -195,7 +195,8 @@ export function Footer() {
           <p>
             © {anio} {site.nombre}
             {site.nap.razonSocial ? ` · ${site.nap.razonSocial}` : ""} · Instalaciones en{" "}
-            {site.nap.ciudad} y {site.nap.comunidad}.
+            {site.nap.ciudad} y {site.nap.comunidad}. Web creada por{" "}
+            <a href="https://www.aasmarketing.com/" className="hover:text-fg">AAS Marketing</a>
           </p>
           <p>
             Proyecto personal de{" "}
